@@ -1,0 +1,5 @@
+bs4
+requests
+pandas
+zhconv
+cowpy==1.0.3
