@@ -4,8 +4,9 @@ from zhconv import convert
 import pandas as pd
 import re
 import json
-from flask import Flask, Response
-app = Flask(__name__)
+from sanic import Sanic
+app = Sanic()
+
 
 
 def get_page(url):
@@ -69,7 +70,7 @@ def dict_to_json(confirm_dict):
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
-def catch_all(path):
+async def index(request, path=""):
     # get page
     wiki_url = """https://zh.wikipedia.org/wiki/2019年%EF%BC%8D2020年新型冠狀病毒肺炎事件"""
     soup = BeautifulSoup(get_page(wiki_url), 'lxml')
