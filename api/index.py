@@ -99,16 +99,14 @@ def catch_request(path):
 def get_china_data():
     
     # get page
-    wiki_url = """https://zh.wikipedia.org/wiki/2019年%EF%BC%8D2020年新型冠狀病毒肺炎事件"""
+    wiki_url = """https://zh.wikipedia.org/wiki/%E6%96%B0%E5%9E%8B%E5%86%A0%E7%8B%80%E7%97%85%E6%AF%92%E8%82%BA%E7%82%8E%E5%85%A8%E7%90%83%E7%96%AB%E6%83%85"""
     soup = BeautifulSoup(get_page(wiki_url), 'lxml')
 
     # get tables
     tables = soup.find_all("table", class_="wikitable")
-    world_table = tables[0]
-    china_table = tables[1]
+    china_table = tables[0]
 
     # convert table to data
-    world_data = table_to_data(world_table)
     china_data = table_to_data(china_table)
     china_data = normalize_data(china_data)
 
