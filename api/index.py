@@ -70,6 +70,7 @@ def dict_to_json(confirm_dict):
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
+@cross_origin()
 def catch_all(path):
     # return Response("<h1>Flask on ZEIT Now</h1><p>You visited: /%s</p>" % (path), mimetype="text/html")
     # get page
