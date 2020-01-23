@@ -71,7 +71,8 @@ def dict_to_json(confirm_dict):
         res.append({"name": k, "value": v})
     return res
 
-@app.route('/')
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
 @cross_origin()
 def post_china_data():
     # return Response("<h1>Flask on ZEIT Now</h1><p>You visited: /%s</p>" % (path), mimetype="text/html")
