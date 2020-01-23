@@ -2,4 +2,5 @@ bs4
 requests
 pandas
 zhconv
-sanic==19.6.0
+flask==1.0.2
+
