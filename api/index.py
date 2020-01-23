@@ -71,10 +71,9 @@ def dict_to_json(confirm_dict):
         res.append({"name": k, "value": v})
     return res
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
+@app.route('/')
 @cross_origin()
-def catch_all(path):
+def post_china_data():
     # return Response("<h1>Flask on ZEIT Now</h1><p>You visited: /%s</p>" % (path), mimetype="text/html")
     # get page
     wiki_url = """https://zh.wikipedia.org/wiki/2019年%EF%BC%8D2020年新型冠狀病毒肺炎事件"""
@@ -89,13 +88,6 @@ def catch_all(path):
     world_data = table_to_data(world_table)
     china_data = table_to_data(china_table)
     china_data = normalize_data(china_data)
-
-    # store as dataframe
-    # df_china = pd.DataFrame(data=china_data[1:], columns=["place", "date", "desc", "source"])
-    # df_china['date'] = pd.to_datetime(df_china['date'])
-    # print(df_china.head())
-    # get the latest news
-    # latest_index = df_china.groupby('place', sort=False).date.tail(1).index
 
     # make dict of {place: number of confirmed cases}
     confirm_dict = make_confirm_dict(china_data[1:])  
