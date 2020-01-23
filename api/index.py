@@ -76,6 +76,7 @@ def dict_to_json(confirm_dict):
 @app.route('/<path:path>')
 @cross_origin()
 def catch_request(path):
+    return get_china_data()
     # return Response("<h1>Flask on ZEIT Now</h1><p>You visited: /%s</p>" % (path), mimetype="text/html")
     filename = os.path.join(app.static_folder, 'confirm_china.json')
     print(filename)
