@@ -2,5 +2,6 @@ bs4
 requests
 pandas
 zhconv
+lxml
 flask==1.0.2
 
