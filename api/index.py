@@ -5,6 +5,9 @@ import pandas as pd
 import re
 import json
 from flask import Flask, Response
+from flask_cors import CORS
+
+
 app = Flask(__name__)
 
 
