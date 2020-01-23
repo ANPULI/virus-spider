@@ -1,4 +1,4 @@
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
 import requests
 from zhconv import convert
 import pandas as pd
@@ -49,11 +49,11 @@ def normalize_data(data):
         source = row[3]
     return data
 
-def make_confirm_dict(df_china):
+def make_confirm_dict(china_data):
     confirm_dict = dict()
-    for i in df_china.index:
-        place = df_china.loc[i].place
-        desc = df_china.loc[i].desc
+    for i in range(len(china_data)):
+        place = china_data[i][0]
+        desc = china_data[i][2]
         res = re.search('累计[0-9]+例', desc)
         if not res:
             res = re.search('共出现[0-9]+例', desc)
@@ -91,14 +91,14 @@ def catch_all(path):
     china_data = normalize_data(china_data)
 
     # store as dataframe
-    df_china = pd.DataFrame(data=china_data[1:], columns=["place", "date", "desc", "source"])
-    df_china['date'] = pd.to_datetime(df_china['date'])
+    # df_china = pd.DataFrame(data=china_data[1:], columns=["place", "date", "desc", "source"])
+    # df_china['date'] = pd.to_datetime(df_china['date'])
     # print(df_china.head())
     # get the latest news
-    latest_index = df_china.groupby('place', sort=False).date.tail(1).index
+    # latest_index = df_china.groupby('place', sort=False).date.tail(1).index
 
     # make dict of {place: number of confirmed cases}
-    confirm_dict = make_confirm_dict(df_china)  
+    confirm_dict = make_confirm_dict(china_data[1:])  
     # print(confirm_dict)
     # convert dict to json
     confirm_json = json.dumps(dict_to_json(confirm_dict), ensure_ascii=False)
