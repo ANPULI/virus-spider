@@ -6,10 +6,11 @@ import re
 import json
 from flask import Flask, Response
 from flask_cors import CORS, cross_origin
-
+import os
+import time
+import calendar
 
 app = Flask(__name__)
-
 
 
 def get_page(url):
@@ -67,15 +68,35 @@ def make_confirm_dict(china_data):
 def dict_to_json(confirm_dict):
     res = []
     for k, v in confirm_dict.items():
-        print(k ,v)
+        # print(k ,v)
         res.append({"name": k, "value": v})
     return res
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 @cross_origin()
-def post_china_data(path):
+def catch_request(path):
     # return Response("<h1>Flask on ZEIT Now</h1><p>You visited: /%s</p>" % (path), mimetype="text/html")
+    filename = os.path.join(app.static_folder, 'confirm_china.json')
+    print(filename)
+    last_mod_time = os.path.getmtime(filename)
+    current_time = calendar.timegm(time.gmtime())
+    interval_minutes = int((current_time - last_mod_time) / 60)
+    print("last modify time: %d, current time: %d, interval_minutes: %d" % (last_mod_time, current_time, interval_minutes))
+    if interval_minutes < 15:
+        print("gap less than 15 minutes, using cache data")
+        with open(filename, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return str(data)
+    print("gap larger than 15 minutes, fetching latest data")
+    data = get_china_data()
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write(data)
+    return data
+
+
+def get_china_data():
+    
     # get page
     wiki_url = """https://zh.wikipedia.org/wiki/2019年%EF%BC%8D2020年新型冠狀病毒肺炎事件"""
     soup = BeautifulSoup(get_page(wiki_url), 'lxml')
