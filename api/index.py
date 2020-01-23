@@ -97,3 +97,19 @@ def post_china_data():
     # print(type(confirm_json))
     # print(confirm_json)
     return confirm_json
+
+@app.route('/world_data')
+@cross_origin()
+def post_world_data():
+    # get page
+    wiki_url = """https://zh.wikipedia.org/wiki/2019年%EF%BC%8D2020年新型冠狀病毒肺炎事件"""
+    soup = BeautifulSoup(get_page(wiki_url), 'lxml')
+
+    # get tables
+    tables = soup.find_all("table", class_="wikitable")
+    world_table = tables[0]
+    china_table = tables[1]
+
+    # convert table to data
+    world_data = table_to_data(world_table)
+    return json.dumps(world_data, ensure_ascii=False)
