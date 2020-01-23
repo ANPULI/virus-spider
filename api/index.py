@@ -1,7 +1,7 @@
 # from bs4 import BeautifulSoup
 import requests
 from zhconv import convert
-import pandas as pd
+# import pandas as pd
 import re
 import json
 from flask import Flask, Response
