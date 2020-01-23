@@ -5,7 +5,7 @@ import pandas as pd
 import re
 import json
 from flask import Flask, Response
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 
 app = Flask(__name__)
