@@ -72,6 +72,75 @@ def dict_to_json(confirm_dict):
         res.append({"name": k, "value": v})
     return res
 
+def t2d(table):
+    # try to solve rowspan / colspan
+    rows = table.find_all("tr")
+    col_num, row_num = get_col_row_num(rows)
+    # print(col_num, row_num)
+    res = [[-1 for i in range(col_num)] for j in range(row_num)]
+    i = 0
+    # i-th row, j-th column
+    for row in rows:
+        j = 0
+        cells = row.find_all(["th", "td"])
+        for cell in cells:
+            value = cell.text.strip()
+            while j < col_num and res[i][j] != -1:
+                j += 1
+            if col_num == j:
+                break
+            col_span, row_span = int(cell.attrs.get('colspan', 1)), int(cell.attrs.get('rowspan', 1))
+            value = int(value) if value.isdigit() else convert(value, 'zh-cn')
+            res[i][j] = value  # current cell
+            for k in range(1, row_span):
+                res[i+k][j] = value  # down
+            for k in range(1, col_span):
+                j += 1
+                res[i][j] = value  # right
+            j += 1
+        i += 1
+    return res      
+
+def get_col_row_num(rows):
+    first_row = rows[0].find_all()
+    col_num = 0
+    # use first row to get the column number
+    for cell in first_row:
+        col_num += int(cell.attrs.get('colspan', 1))
+    row_num = len(rows)
+    return col_num, row_num
+
+def get_china_data():
+    
+    # get page
+    wiki_url = """https://zh.wikipedia.org/wiki/2019%EF%BC%8D2020%E5%B9%B4%E6%96%B0%E5%9E%8B%E5%86%A0%E7%8B%80%E7%97%85%E6%AF%92%E8%82%BA%E7%82%8E%E4%BA%8B%E4%BB%B6"""
+    china_url = """https://zh.wikipedia.org/wiki/%E6%96%B0%E5%9E%8B%E5%86%A0%E7%8B%80%E7%97%85%E6%AF%92%E8%82%BA%E7%82%8E%E5%85%A8%E7%90%83%E7%96%AB%E6%83%85%E7%97%85%E4%BE%8B"""
+    soup = BeautifulSoup(get_page(china_url), 'lxml')
+
+    # get tables
+    tables = soup.find_all("table", class_="wikitable")
+    china_table = tables[0]
+
+    # convert table to data
+    china_data = t2d(china_table)
+    latest_data = parse_data(china_data)
+
+    # make dict of {place: number of confirmed cases}
+    # confirm_dict = make_confirm_dict(china_data[1:])  
+    # convert dict to json
+    # confirm_json = json.dumps(dict_to_json(confirm_dict), ensure_ascii=False)
+    return latest_data
+
+def parse_data(data):
+    keys = data[0][1:]
+    values = data[-1][1:]
+    print(keys)
+    print(values)
+    res = dict()
+    for i in range(len(keys)):
+        res.setdefault(keys[i], []).append(values[i])
+    return json.dumps(dict_to_json(res), ensure_ascii=False)
+
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 @cross_origin()
@@ -96,28 +165,6 @@ def catch_request(path):
     return data
 
 
-def get_china_data():
-    
-    # get page
-    wiki_url = """https://zh.wikipedia.org/wiki/2019%EF%BC%8D2020%E5%B9%B4%E6%96%B0%E5%9E%8B%E5%86%A0%E7%8B%80%E7%97%85%E6%AF%92%E8%82%BA%E7%82%8E%E4%BA%8B%E4%BB%B6"""
-    soup = BeautifulSoup(get_page(wiki_url), 'lxml')
-
-    # get tables
-    tables = soup.find_all("table", class_="wikitable")
-    china_table = tables[1]
-
-    # convert table to data
-    china_data = table_to_data(china_table)
-    china_data = normalize_data(china_data)
-
-    # make dict of {place: number of confirmed cases}
-    confirm_dict = make_confirm_dict(china_data[1:])  
-    # print(confirm_dict)
-    # convert dict to json
-    confirm_json = json.dumps(dict_to_json(confirm_dict), ensure_ascii=False)
-    # print(type(confirm_json))
-    # print(confirm_json)
-    return confirm_json
 
 # @app.route('/world_data')
 # @cross_origin()
