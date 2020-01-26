@@ -116,24 +116,40 @@ def get_latest_data(data):
     res = dict()
     for i in range(len(keys)):
         res.setdefault(keys[i], []).append(values[i])
-    for k in res.keys():
-        if len(res[k]) == 1:
-            res[k].append(0)
     return json.dumps(dict_to_json(res), ensure_ascii=False)
 
 def get_all_data(data):
-    provs = data[0][1:]  # provinces
+    num_table = len(data)
+    # 3 tables
+    # provs = data[0][0][1:]  # provinces
+    # print(provs)
     result = dict()
-    for i in range(2, len(data)):
+    # confirmed, dead, cured
+    names = ['confirmed', 'dead', 'cured']
+    for i in range(num_table):
         res = dict()
-        values = data[i][1:]
-        for j in range(len(provs)):
-            res.setdefault(provs[j], []).append(values[j] if values[j] else 0)
-        for k in res.keys():
-            if len(res[k]) == 1:
-                res[k].append(0)
-        date = data[i][0]
-        result[date] = dict_to_json(res)
+        table = data[i]
+        for j in range(1, len(table)):
+            date = table[j][0]
+            for k in range(1, len(table[0])):
+                prov = table[0][k]
+                value = table[j][k] if table[j][k] else 0
+                res.setdefault(date, dict())[prov] = value
+            res[date] = dict_to_json(res[date])
+        result[names[i]] = res
+    # combine the tables
+
+    return json.dumps(result, ensure_ascii=False)
+
+    # for i in range(1, len(data[0])):
+    #     res = dict()
+    #     values = [data[k][i][1:] for k in range(num_table)]
+    #     print("values", values)
+    #     for j in range(len(provs)):
+    #         print([values[k][j] if values[k][j] else 0 for k in range(num_table)])
+    #         res.setdefault(provs[j], []).extend([values[k][j] if values[k][j] else 0 for k in range(num_table)])
+    #     date = data[0][i][0]
+    #     result[date] = dict_to_json(res)
     return json.dumps(dict_to_json(result), ensure_ascii=False)
 
 
@@ -149,11 +165,13 @@ def get_china_data():
 
     # get tables
     tables = soup.find_all("table", class_="wikitable")
-    china_table = tables[0]
+    report_table = tables[0]
+    china_table = tables[1:4]
 
     # convert table to data
-    china_data = t2d(china_table)
-    latest_data = get_latest_data(china_data)
+    china_data = []
+    china_data = [t2d(china_table[i]) for i in range(3)]
+    # latest_data = get_latest_data(china_data)
     all_data = get_all_data(china_data)
     return all_data
 
