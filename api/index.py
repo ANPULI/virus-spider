@@ -125,7 +125,7 @@ def get_all_data(data):
     # print(provs)
     result = dict()
     # confirmed, dead, cured
-    names = ['confirmed', 'dead', 'cured']
+    names = ['确诊', '死亡', '治愈']
     for i in range(num_table):
         res = dict()
         table = data[i]
