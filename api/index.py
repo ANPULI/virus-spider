@@ -110,6 +110,36 @@ def get_col_row_num(rows):
     row_num = len(rows)
     return col_num, row_num
 
+def get_latest_data(data):
+    keys = data[0][1:]
+    values = data[-1][1:]
+    res = dict()
+    for i in range(len(keys)):
+        res.setdefault(keys[i], []).append(values[i])
+    for k in res.keys():
+        if len(res[k]) == 1:
+            res[k].append(0)
+    return json.dumps(dict_to_json(res), ensure_ascii=False)
+
+def get_all_data(data):
+    provs = data[0][1:]  # provinces
+    result = dict()
+    for i in range(2, len(data)):
+        res = dict()
+        values = data[i][1:]
+        for j in range(len(provs)):
+            res.setdefault(provs[j], []).append(values[j] if values[j] else 0)
+        for k in res.keys():
+            if len(res[k]) == 1:
+                res[k].append(0)
+        date= data[i][0]
+        result[date] = dict_to_json(res)
+    return json.dumps(result, ensure_ascii=False)
+
+
+        
+
+
 def get_china_data():
     
     # get page
@@ -123,7 +153,9 @@ def get_china_data():
 
     # convert table to data
     china_data = t2d(china_table)
-    latest_data = parse_data(china_data)
+    latest_data = get_latest_data(china_data)
+    all_data = get_all_data(china_data)
+    return all_data
 
     # make dict of {place: number of confirmed cases}
     # confirm_dict = make_confirm_dict(china_data[1:])  
@@ -131,15 +163,6 @@ def get_china_data():
     # confirm_json = json.dumps(dict_to_json(confirm_dict), ensure_ascii=False)
     return latest_data
 
-def parse_data(data):
-    keys = data[0][1:]
-    values = data[-1][1:]
-    print(keys)
-    print(values)
-    res = dict()
-    for i in range(len(keys)):
-        res.setdefault(keys[i], []).append(values[i])
-    return json.dumps(dict_to_json(res), ensure_ascii=False)
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -147,37 +170,38 @@ def parse_data(data):
 def catch_request(path):
     return get_china_data()
     # return Response("<h1>Flask on ZEIT Now</h1><p>You visited: /%s</p>" % (path), mimetype="text/html")
-    filename = os.path.join(app.static_folder, 'confirm_china.json')
-    print(filename)
-    last_mod_time = os.path.getmtime(filename)
-    current_time = calendar.timegm(time.gmtime())
-    interval_minutes = int((current_time - last_mod_time) / 60)
-    print("last modify time: %d, current time: %d, interval_minutes: %d" % (last_mod_time, current_time, interval_minutes))
-    if interval_minutes < 15:
-        print("gap less than 15 minutes, using cache data")
-        with open(filename, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        return str(data)
-    print("gap larger than 15 minutes, fetching latest data")
-    data = get_china_data()
-    with open(filename, 'w', encoding='utf-8') as f:
-        f.write(data)
-    return data
+    # filename = os.path.join(app.static_folder, 'confirm_china.json')
+    # print(filename)
+    # last_mod_time = os.path.getmtime(filename)
+    # current_time = calendar.timegm(time.gmtime())
+    # interval_minutes = int((current_time - last_mod_time) / 60)
+    # print("last modify time: %d, current time: %d, interval_minutes: %d" % (last_mod_time, current_time, interval_minutes))
+    # if interval_minutes < 15:
+    #     print("gap less than 15 minutes, using cache data")
+    #     with open(filename, 'r', encoding='utf-8') as f:
+    #         data = json.load(f)
+    #     return str(data)
+    # print("gap larger than 15 minutes, fetching latest data")
+    # data = get_china_data()
+    # with open(filename, 'w', encoding='utf-8') as f:
+    #     f.write(data)
+    # return data
 
 
+'''# deprecated
+@app.route('/world_data')
+@cross_origin()
+def post_world_data():
+    # get page
+    wiki_url = """https://zh.wikipedia.org/wiki/2019年%EF%BC%8D2020年新型冠狀病毒肺炎事件"""
+    soup = BeautifulSoup(get_page(wiki_url), 'lxml')
 
-# @app.route('/world_data')
-# @cross_origin()
-# def post_world_data():
-#     # get page
-#     wiki_url = """https://zh.wikipedia.org/wiki/2019年%EF%BC%8D2020年新型冠狀病毒肺炎事件"""
-#     soup = BeautifulSoup(get_page(wiki_url), 'lxml')
+    # get tables
+    tables = soup.find_all("table", class_="wikitable")
+    world_table = tables[0]
+    china_table = tables[1]
 
-#     # get tables
-#     tables = soup.find_all("table", class_="wikitable")
-#     world_table = tables[0]
-#     china_table = tables[1]
-
-#     # convert table to data
-#     world_data = table_to_data(world_table)
-#     return json.dumps(world_data, ensure_ascii=False)
+    # convert table to data
+    world_data = table_to_data(world_table)
+    return json.dumps(world_data, ensure_ascii=False)
+'''
