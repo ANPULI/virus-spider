@@ -134,7 +134,7 @@ def get_all_data(data):
                 res[k].append(0)
         date = data[i][0]
         result[date] = dict_to_json(res)
-    return json.dumps(result, ensure_ascii=False)
+    return json.dumps(dict_to_json(result), ensure_ascii=False)
 
 
         
