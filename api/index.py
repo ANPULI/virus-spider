@@ -169,8 +169,8 @@ def get_china_data():
 
     # get tables
     tables = soup.find_all("table", class_="wikitable")
-    report_table = tables[0]
-    china_table = tables[1:4]
+    # report_table = tables[0]
+    china_table = tables[0:3]
 
     # convert table to data
     china_data = []
