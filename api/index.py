@@ -134,6 +134,10 @@ def get_all_data(data):
             for k in range(1, len(table[0])):
                 prov = table[0][k]
                 value = table[j][k] if table[j][k] else 0
+                try:
+                    value = int(value)
+                except:
+                    value = int(re.search("\d+", value).group())                
                 res.setdefault(date, dict())[prov] = value
             res[date] = dict_to_json(res[date])
         result[names[i]] = res
