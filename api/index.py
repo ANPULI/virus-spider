@@ -18,6 +18,7 @@ def get_page(url):
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"})
     return response.text
 
+''' deprecated
 def table_to_data(table):
     data = [[convert(cell.text.strip(), 'zh-cn') for cell in row.find_all("td")] for row in table.find_all("tr")]
     data[0] = [convert(cell.text.strip(), 'zh-cn') for cell in table.find("tr").find_all("th")]
@@ -64,6 +65,7 @@ def make_confirm_dict(china_data):
             num_confirmed = int(re.search(r'\d+', res.group()).group())
         confirm_dict[place] = max(num_confirmed, confirm_dict.get(place, 0))
     return confirm_dict
+'''
 
 def dict_to_json(confirm_dict):
     res = []
@@ -174,6 +176,7 @@ def get_china_data():
         if "新增病例" in tables[i].caption.text:
             break
     china_table = tables[i:i+3]
+    city_table = tables[i+4]
 
     # convert table to data
     china_data = []
