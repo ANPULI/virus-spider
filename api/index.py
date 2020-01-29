@@ -170,7 +170,10 @@ def get_china_data():
     # get tables
     tables = soup.find_all("table", class_="wikitable")
     # report_table = tables[0]
-    china_table = tables[0:3]
+    for i in range(0, len(tables)):
+        if "新增病例" in tables[i].caption.text:
+            break
+    china_table = tables[i:i+3]
 
     # convert table to data
     china_data = []
