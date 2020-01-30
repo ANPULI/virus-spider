@@ -140,7 +140,7 @@ def get_all_data(data):
                 # except:
                 #     value = int(re.search("\d+", value).group())                
                 res.setdefault(date, dict())[prov] = value
-                if "全国" == prov:
+                if "全国" == prov and "累计" != date:
                     daily_data.setdefault(names[i], list()).append(value)
             res[date] = dict_to_json(res[date])
         result[names[i]] = res
