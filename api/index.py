@@ -132,11 +132,13 @@ def get_all_data(data):
             date = table[j][0]
             for k in range(1, len(table[0])):
                 prov = table[0][k]
-                value = table[j][k] if table[j][k] else 0
-                try:
-                    value = int(value)
-                except:
-                    value = int(re.search("\d+", value).group())                
+                value = re.search("\d+", str(table[j][k]))
+                value = int(value.group()) if value else 0
+                # value = table[j][k] if table[j][k] else 0
+                # try:
+                #     value = int(value)
+                # except:
+                #     value = int(re.search("\d+", value).group())                
                 res.setdefault(date, dict())[prov] = value
                 if "全国" == prov:
                     daily_data.setdefault(names[i], list()).append(value)
