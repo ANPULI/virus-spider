@@ -122,11 +122,8 @@ def get_latest_data(data):
 
 def get_all_data(data):
     num_table = len(data)
-    # 3 tables
-    # provs = data[0][0][1:]  # provinces
-    # print(provs)
-    result = dict()
-    # confirmed, dead, cured
+    result, daily_data = dict(), dict()
+    daily_data["日期"] = [data[0][i][0] for i in range(1, len(data[0])-1)]
     names = ['确诊', '死亡', '治愈']
     for i in range(num_table):
         res = dict()
@@ -141,10 +138,11 @@ def get_all_data(data):
                 except:
                     value = int(re.search("\d+", value).group())                
                 res.setdefault(date, dict())[prov] = value
+                if "全国" == prov:
+                    daily_data.setdefault(names[i], list()).append(value)
             res[date] = dict_to_json(res[date])
         result[names[i]] = res
-    # combine the tables
-
+    result["每日"] = daily_data
     return json.dumps(result, ensure_ascii=False)
 
     # for i in range(1, len(data[0])):
@@ -176,10 +174,9 @@ def get_china_data():
         if "新增病例" in tables[i].caption.text:
             break
     china_table = tables[i:i+3]
-    city_table = tables[i+4]
+    city_table = tables[i+3]
 
     # convert table to data
-    china_data = []
     china_data = [t2d(china_table[i]) for i in range(3)]
     # latest_data = get_latest_data(china_data)
     all_data = get_all_data(china_data)
