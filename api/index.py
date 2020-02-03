@@ -104,7 +104,7 @@ def t2d(table):
     return res      
 
 def get_col_row_num(rows):
-    first_row = rows[0].find_all()
+    first_row = rows[0].find_all('th')
     col_num = 0
     # use first row to get the column number
     for cell in first_row:
@@ -125,8 +125,9 @@ def get_all_data(data):
     result, daily_data = dict(), dict()
     daily_data["日期"] = [data[0][i][0] for i in range(1, len(data[0])-1)]
     names = ['确诊', '死亡', '治愈']
+    res = dict()
     for i in range(num_table):
-        res = dict()
+        # res = dict()
         table = data[i]
         for j in range(1, len(table)):
             date = table[j][0]
@@ -134,33 +135,16 @@ def get_all_data(data):
                 prov = table[0][k]
                 value = re.search("\d+", str(table[j][k]))
                 value = int(value.group()) if value else 0
-                # value = table[j][k] if table[j][k] else 0
-                # try:
-                #     value = int(value)
-                # except:
-                #     value = int(re.search("\d+", value).group())                
-                res.setdefault(date, dict())[prov] = value
+                res.setdefault(date, dict()).setdefault(prov, list()).append(value)
                 if "全国" == prov and "累计" != date:
                     daily_data.setdefault(names[i], list()).append(value)
-            res[date] = dict_to_json(res[date])
-        result[names[i]] = res
+            # res[date] = dict_to_json(res[date])
+        # result[names[i]] = res
+    for date in res.keys():
+        res[date] = dict_to_json(res[date])
+    result["省级"] = res
     result["每日"] = daily_data
     return json.dumps(result, ensure_ascii=False)
-
-    # for i in range(1, len(data[0])):
-    #     res = dict()
-    #     values = [data[k][i][1:] for k in range(num_table)]
-    #     print("values", values)
-    #     for j in range(len(provs)):
-    #         print([values[k][j] if values[k][j] else 0 for k in range(num_table)])
-    #         res.setdefault(provs[j], []).extend([values[k][j] if values[k][j] else 0 for k in range(num_table)])
-    #     date = data[0][i][0]
-    #     result[date] = dict_to_json(res)
-    return json.dumps(dict_to_json(result), ensure_ascii=False)
-
-
-        
-
 
 def get_china_data():
     
@@ -181,6 +165,8 @@ def get_china_data():
 
     # convert table to data
     china_data = [t2d(china_table[i]) for i in range(3)]
+    city_data = t2d(city_table)
+    print(city_data)
     # latest_data = get_latest_data(china_data)
     all_data = get_all_data(china_data)
     return all_data
