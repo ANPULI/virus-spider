@@ -89,9 +89,9 @@ def t2d(table):
             value = cell.text.strip()
             while j < col_num and res[i][j] != -1:
                 j += 1
-            if col_num == j:
+            if col_num <= j:
                 break
-            col_span, row_span = int(cell.attrs.get('colspan', 1)), int(cell.attrs.get('rowspan', 1))
+            col_span, row_span = min(int(cell.attrs.get('colspan', 1)), col_num - j), min(int(cell.attrs.get('rowspan', 1)), row_num - i)  # handle overflow
             value = int(value) if value.isdigit() else convert(value, 'zh-cn')
             res[i][j] = value  # current cell
             for k in range(1, row_span):
@@ -161,6 +161,9 @@ def get_china_data():
         if "新增病例" in tables[i].caption.text:
             break
     china_table = tables[i:i+3]
+    print(i)
+    print(len(tables))
+    print(len(china_table))
     city_table = tables[i+3]
 
     # convert table to data
